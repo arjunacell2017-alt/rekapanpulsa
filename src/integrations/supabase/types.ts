@@ -14,7 +14,87 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      harta2: {
+        Row: {
+          created_at: string
+          id: string
+          jumlah: number
+          keterangan: string
+          qty: number
+          tanggal: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          jumlah?: number
+          keterangan: string
+          qty?: number
+          tanggal?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          jumlah?: number
+          keterangan?: string
+          qty?: number
+          tanggal?: string
+        }
+        Relationships: []
+      }
+      rekap_harian: {
+        Row: {
+          created_at: string
+          id: string
+          komisi_reseller: number
+          laba_rugi: number
+          saldo_reseller: number
+          tanggal: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          komisi_reseller?: number
+          laba_rugi?: number
+          saldo_reseller?: number
+          tanggal?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          komisi_reseller?: number
+          laba_rugi?: number
+          saldo_reseller?: number
+          tanggal?: string
+        }
+        Relationships: []
+      }
+      supplier: {
+        Row: {
+          created_at: string
+          id: string
+          jumlah: number
+          nama: string
+          qty: number
+          tanggal: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          jumlah?: number
+          nama: string
+          qty?: number
+          tanggal?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          jumlah?: number
+          nama?: string
+          qty?: number
+          tanggal?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
