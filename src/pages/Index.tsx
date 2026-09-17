@@ -51,7 +51,10 @@ const Index = () => {
     const { error } = i.id
       ? await supabase.from("supplier").update(payload).eq("id", i.id)
       : await supabase.from("supplier").insert(payload);
-    if (error) return toast({ title: "Gagal menyimpan", description: error.message, variant: "destructive" });
+    if (error) {
+      toast({ title: "Gagal menyimpan", description: error.message, variant: "destructive" });
+      return;
+    }
     toast({ title: "Data supplier tersimpan" });
     muat();
   };
@@ -61,14 +64,20 @@ const Index = () => {
     const { error } = i.id
       ? await supabase.from("harta2").update(payload).eq("id", i.id)
       : await supabase.from("harta2").insert(payload);
-    if (error) return toast({ title: "Gagal menyimpan", description: error.message, variant: "destructive" });
+    if (error) {
+      toast({ title: "Gagal menyimpan", description: error.message, variant: "destructive" });
+      return;
+    }
     toast({ title: "Data Harta 2 tersimpan" });
     muat();
   };
 
   const hapus = async (tabel: "supplier" | "harta2", id: string) => {
     const { error } = await supabase.from(tabel).delete().eq("id", id);
-    if (error) return toast({ title: "Gagal menghapus", description: error.message, variant: "destructive" });
+    if (error) {
+      toast({ title: "Gagal menghapus", description: error.message, variant: "destructive" });
+      return;
+    }
     toast({ title: "Data dihapus" });
     muat();
   };
@@ -83,7 +92,10 @@ const Index = () => {
       },
       { onConflict: "tanggal" }
     );
-    if (error) return toast({ title: "Gagal menyimpan", description: error.message, variant: "destructive" });
+    if (error) {
+      toast({ title: "Gagal menyimpan", description: error.message, variant: "destructive" });
+      return;
+    }
     toast({ title: "Saldo & komisi tersimpan" });
     muat();
   };
