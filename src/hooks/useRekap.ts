@@ -25,7 +25,7 @@ export interface RekapRow {
   laba_rugi: number;
 }
 
-export function useRekap(dari: string, sampai: string) {
+export function useRekap() {
   const [supplier, setSupplier] = useState<SupplierRow[]>([]);
   const [harta2, setHarta2] = useState<Harta2Row[]>([]);
   const [rekap, setRekap] = useState<RekapRow | null>(null);
@@ -34,21 +34,15 @@ export function useRekap(dari: string, sampai: string) {
   const muat = useCallback(async () => {
     setLoading(true);
     const [s, h, r] = await Promise.all([
-      supabase.from("supplier").select("*").gte("tanggal", dari).lte("tanggal", sampai).order("created_at"),
-      supabase.from("harta2").select("*").gte("tanggal", dari).lte("tanggal", sampai).order("created_at"),
-      supabase
-        .from("rekap_harian")
-        .select("*")
-        .gte("tanggal", dari)
-        .lte("tanggal", sampai)
-        .order("tanggal", { ascending: false })
-        .limit(1),
+      supabase.from("supplier").select("*").order("created_at"),
+      supabase.from("harta2").select("*").order("created_at"),
+      supabase.from("rekap_harian").select("*").order("tanggal", { ascending: false }).limit(1),
     ]);
     setSupplier((s.data as SupplierRow[]) ?? []);
     setHarta2((h.data as Harta2Row[]) ?? []);
     setRekap(((r.data as RekapRow[]) ?? [])[0] ?? null);
     setLoading(false);
-  }, [dari, sampai]);
+  }, []);
 
   useEffect(() => {
     muat();

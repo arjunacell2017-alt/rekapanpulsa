@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 const menu = [
   { id: "ringkasan", label: "Dashboard", icon: LayoutDashboard },
   { id: "supplier", label: "Supplier", icon: Truck },
-  { id: "harta2", label: "Harta 2", icon: Wallet },
+  { id: "harta2", label: "Total Harta", icon: Wallet },
   { id: "rekonsiliasi", label: "Rekonsiliasi", icon: Scale },
 ];
 
@@ -48,7 +48,7 @@ const Isi = ({ onExportExcel, onExportPDF, tutup }: Props & { tutup?: () => void
 
 const Sidebar = (props: Props) => (
   <>
-    <aside className="hidden w-60 shrink-0 border-r bg-card md:block">
+    <aside className="hidden w-56 shrink-0 border-r bg-card md:block">
       <div className="sticky top-0 h-screen">
         <Isi {...props} />
       </div>

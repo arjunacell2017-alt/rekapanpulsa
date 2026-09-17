@@ -15,14 +15,14 @@ const toneClass = {
 };
 
 const KartuRingkasan = ({ items }: { items: Ringkasan[] }) => (
-  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
     {items.map((i) => (
       <Card key={i.label} className={cn("shadow-sm", toneClass[i.tone ?? "biru"])}>
-        <CardContent className="p-4">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{i.label}</p>
+        <CardContent className="p-3">
+          <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{i.label}</p>
           <p
             className={cn(
-              "mt-2 text-xl font-semibold tabular-nums",
+              "mt-1 text-xl font-bold tabular-nums",
               i.nilai < 0 ? "text-destructive" : "text-foreground"
             )}
           >
