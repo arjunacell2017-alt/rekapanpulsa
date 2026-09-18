@@ -17,17 +17,17 @@ const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
 export function exportExcel(data: LaporanData) {
   const rows: string[] = [];
   rows.push(`<tr><th colspan="4" style="font-size:16px">REKAP KEUANGAN SERVER PULSA</th></tr>`);
-  rows.push(`<tr><td colspan="4">Periode: ${esc(data.periode)}</td></tr><tr></tr>`);
+  rows.push(`<tr><td colspan="4">Dicetak: ${new Date().toLocaleDateString("id-ID")}</td></tr><tr></tr>`);
   rows.push(`<tr><th colspan="4" style="background:#DBEAFE">RINGKASAN</th></tr>`);
   data.ringkasan.forEach((r) =>
     rows.push(`<tr><td colspan="3">${esc(r.label)}</td><td>${r.nilai}</td></tr>`)
   );
-  rows.push(`<tr></tr><tr><th colspan="4" style="background:#DBEAFE">SUPPLIER (HARTA 1)</th></tr>`);
+  rows.push(`<tr></tr><tr><th colspan="4" style="background:#DBEAFE">SUPPLIER</th></tr>`);
   rows.push(`<tr><th>Nama Supplier</th><th>Qty</th><th>Jumlah</th><th>Total</th></tr>`);
   data.supplier.forEach((s) =>
     rows.push(`<tr><td>${esc(s.label)}</td><td>${s.qty}</td><td>${s.jumlah}</td><td>${s.total}</td></tr>`)
   );
-  rows.push(`<tr></tr><tr><th colspan="4" style="background:#DCFCE7">HARTA 2</th></tr>`);
+  rows.push(`<tr></tr><tr><th colspan="4" style="background:#DCFCE7">TOTAL HARTA</th></tr>`);
   rows.push(`<tr><th>Keterangan</th><th>Qty</th><th>Jumlah</th><th>Total</th></tr>`);
   data.harta2.forEach((s) =>
     rows.push(`<tr><td>${esc(s.label)}</td><td>${s.qty}</td><td>${s.jumlah}</td><td>${s.total}</td></tr>`)
@@ -46,7 +46,7 @@ export function exportPDF(data: LaporanData) {
   doc.setFontSize(15);
   doc.text("Rekap Keuangan Server Pulsa", 14, 16);
   doc.setFontSize(10);
-  doc.text(`Periode: ${data.periode}`, 14, 23);
+  doc.text(`Dicetak: ${new Date().toLocaleDateString("id-ID")}`, 14, 23);
 
   autoTable(doc, {
     startY: 28,
