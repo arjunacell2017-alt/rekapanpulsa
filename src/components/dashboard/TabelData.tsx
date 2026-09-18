@@ -121,12 +121,12 @@ const TabelData = ({ judul, labelKolom, warna, data, totalLabel, onSimpan, onHap
           <Table>
             <TableHeader>
               <TableRow className={warna === "biru" ? "bg-info-soft" : "bg-success-soft"}>
-                <TableHead className="w-10">No</TableHead>
-                <TableHead>{labelKolom}</TableHead>
-                <TableHead className="text-right">Qty</TableHead>
-                <TableHead className="text-right">Jumlah</TableHead>
-                <TableHead className="text-right">Total</TableHead>
-                <TableHead className="w-20" />
+                <TableHead className="h-9 w-8 px-2 text-xs">No</TableHead>
+                <TableHead className="h-9 px-2 text-xs">{labelKolom}</TableHead>
+                <TableHead className="h-9 px-2 text-right text-xs">Qty</TableHead>
+                <TableHead className="h-9 px-2 text-right text-xs">Jumlah</TableHead>
+                <TableHead className="h-9 px-2 text-right text-xs">Total</TableHead>
+                <TableHead className="h-9 w-16 px-2" />
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -139,42 +139,50 @@ const TabelData = ({ judul, labelKolom, warna, data, totalLabel, onSimpan, onHap
               )}
               {data.map((item, i) => (
                 <TableRow key={item.id}>
-                  <TableCell>{i + 1}</TableCell>
-                  <TableCell className="font-medium">{item.nama}</TableCell>
-                  <TableCell className="text-right tabular-nums">{item.qty}</TableCell>
+                  <TableCell className="px-2 py-1.5 text-sm">{i + 1}</TableCell>
+                  <TableCell className="whitespace-nowrap px-2 py-1.5 text-sm font-medium">{item.nama}</TableCell>
+                  <TableCell className="px-2 py-1.5 text-right text-sm tabular-nums">{item.qty}</TableCell>
                   <TableCell
-                    className={cn("text-right tabular-nums", item.jumlah < 0 && "text-destructive")}
+                    className={cn(
+                      "whitespace-nowrap px-2 py-1.5 text-right text-sm tabular-nums",
+                      item.jumlah < 0 && "text-destructive"
+                    )}
                   >
                     {formatRupiah(item.jumlah)}
                   </TableCell>
                   <TableCell
                     className={cn(
-                      "text-right font-medium tabular-nums",
+                      "whitespace-nowrap px-2 py-1.5 text-right text-sm font-medium tabular-nums",
                       item.qty * item.jumlah < 0 && "text-destructive"
                     )}
                   >
                     {formatRupiah(item.qty * item.jumlah)}
                   </TableCell>
-                  <TableCell className="text-right">
-                    <Button size="icon" variant="ghost" onClick={() => bukaEdit(item)}>
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button size="icon" variant="ghost" onClick={() => onHapus(item.id)}>
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
+                  <TableCell className="px-1 py-1.5">
+                    <div className="flex items-center justify-end">
+                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => bukaEdit(item)}>
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => onHapus(item.id)}>
+                        <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
-              <TableRow className="bg-muted/60">
-                <TableCell colSpan={4} className="font-semibold">
+              <TableRow className="bg-muted/60 hover:bg-muted/60">
+                <TableCell colSpan={4} className="px-2 py-2 text-xs font-semibold">
                   {totalLabel}
                 </TableCell>
                 <TableCell
-                  className={cn("text-right font-bold tabular-nums", total < 0 && "text-destructive")}
+                  className={cn(
+                    "whitespace-nowrap px-2 py-2 text-right text-sm font-bold tabular-nums",
+                    total < 0 && "text-destructive"
+                  )}
                 >
                   {formatRupiah(total)}
                 </TableCell>
-                <TableCell />
+                <TableCell className="px-1" />
               </TableRow>
             </TableBody>
           </Table>
