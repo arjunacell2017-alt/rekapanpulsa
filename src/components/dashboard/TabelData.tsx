@@ -63,8 +63,8 @@ const TabelData = ({ judul, labelKolom, warna, data, totalLabel, onSimpan, onHap
 
   return (
     <Card className="shadow-sm">
-      <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-3">
-        <CardTitle className="text-base font-semibold">{judul}</CardTitle>
+      <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 px-4 py-3">
+        <CardTitle className="text-sm font-semibold">{judul}</CardTitle>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button size="sm" variant="outline" onClick={bukaTambah}>
@@ -133,7 +133,7 @@ const TabelData = ({ judul, labelKolom, warna, data, totalLabel, onSimpan, onHap
               {data.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={6} className="py-6 text-center text-sm text-muted-foreground">
-                    Belum ada data pada periode ini.
+                    Belum ada data.
                   </TableCell>
                 </TableRow>
               )}
