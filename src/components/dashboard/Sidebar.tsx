@@ -1,6 +1,8 @@
-import { LayoutDashboard, Truck, Wallet, Scale, FileSpreadsheet, FileText, Menu } from "lucide-react";
+import { LayoutDashboard, Truck, Wallet, Scale, FileSpreadsheet, FileText, Menu, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
 const menu = [
@@ -15,11 +17,15 @@ interface Props {
   onExportPDF: () => void;
 }
 
-const Isi = ({ onExportExcel, onExportPDF, tutup }: Props & { tutup?: () => void }) => (
+const Isi = ({ onExportExcel, onExportPDF, tutup }: Props & { tutup?: () => void }) => {
+  const { keluar, clientNama, user } = useAuth();
+  const navigate = useNavigate();
+
+  return (
   <div className="flex h-full flex-col gap-1 p-4">
     <div className="mb-5 px-2">
       <p className="text-sm font-bold text-primary">ARJUNA TRONIK</p>
-      <p className="text-xs text-muted-foreground">Rekap Keuangan</p>
+      <p className="text-xs text-muted-foreground">{clientNama ?? "Rekap Keuangan"}</p>
     </div>
     {menu.map((m) => (
       <a
@@ -42,9 +48,22 @@ const Isi = ({ onExportExcel, onExportPDF, tutup }: Props & { tutup?: () => void
       <Button variant="outline" size="sm" className="w-full justify-start" onClick={onExportPDF}>
         <FileText className="mr-2 h-4 w-4 text-destructive" /> Export PDF
       </Button>
+      <p className="truncate px-3 pt-2 text-xs text-muted-foreground">{user?.email}</p>
+      <Button
+        variant="outline"
+        size="sm"
+        className="w-full justify-start"
+        onClick={async () => {
+          await keluar();
+          navigate("/login", { replace: true });
+        }}
+      >
+        <LogOut className="mr-2 h-4 w-4" /> Logout
+      </Button>
     </div>
   </div>
-);
+  );
+};
 
 const Sidebar = (props: Props) => (
   <>

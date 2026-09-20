@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import Sidebar from "@/components/dashboard/Sidebar";
@@ -7,10 +8,20 @@ import TabelData from "@/components/dashboard/TabelData";
 import FormSaldo from "@/components/dashboard/FormSaldo";
 import Rekonsiliasi from "@/components/dashboard/Rekonsiliasi";
 import { useRekap } from "@/hooks/useRekap";
+import { useAuth } from "@/hooks/useAuth";
 import { exportExcel, exportPDF, LaporanData } from "@/lib/exportUtils";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Eye } from "lucide-react";
 
 const Index = () => {
-  const { supplier, harta2, rekap, muat } = useRekap();
+  const { peran, clientId: clientSaya, clientNama } = useAuth();
+  const [params] = useSearchParams();
+  const clientDilihat = peran === "admin" ? params.get("client") : null;
+  const clientId = peran === "admin" ? clientDilihat : clientSaya;
+  const hanyaLihat = peran === "admin";
+
+  const { supplier, harta2, rekap, muat } = useRekap(clientId);
 
   const totalSaldoSupplier = supplier.reduce((a, b) => a + b.qty * b.jumlah, 0);
   const totalHarta = harta2.reduce((a, b) => a + b.qty * b.jumlah, 0);
@@ -31,7 +42,8 @@ const Index = () => {
   );
 
   const simpanSupplier = async (i: { id?: string; tanggal: string; nama: string; qty: number; jumlah: number }) => {
-    const payload = { tanggal: i.tanggal, nama: i.nama, qty: i.qty, jumlah: i.jumlah };
+    if (!clientId) return;
+    const payload = { tanggal: i.tanggal, nama: i.nama, qty: i.qty, jumlah: i.jumlah, client_id: clientId };
     const { error } = i.id
       ? await supabase.from("supplier").update(payload).eq("id", i.id)
       : await supabase.from("supplier").insert(payload);
@@ -44,7 +56,8 @@ const Index = () => {
   };
 
   const simpanHarta2 = async (i: { id?: string; tanggal: string; nama: string; qty: number; jumlah: number }) => {
-    const payload = { tanggal: i.tanggal, keterangan: i.nama, qty: i.qty, jumlah: i.jumlah };
+    if (!clientId) return;
+    const payload = { tanggal: i.tanggal, keterangan: i.nama, qty: i.qty, jumlah: i.jumlah, client_id: clientId };
     const { error } = i.id
       ? await supabase.from("harta2").update(payload).eq("id", i.id)
       : await supabase.from("harta2").insert(payload);
@@ -67,14 +80,16 @@ const Index = () => {
   };
 
   const simpanSaldo = async (v: { tanggal: string; saldo: number; komisi: number; laba: number }) => {
+    if (!clientId) return;
     const { error } = await supabase.from("rekap_harian").upsert(
       {
         tanggal: v.tanggal,
         saldo_reseller: v.saldo,
         komisi_reseller: v.komisi,
         laba_rugi: v.laba,
+        client_id: clientId,
       },
-      { onConflict: "tanggal" }
+      { onConflict: "client_id,tanggal" }
     );
     if (error) {
       toast({ title: "Gagal menyimpan", description: error.message, variant: "destructive" });
@@ -97,12 +112,37 @@ const Index = () => {
     status: Math.round(selisih) > 0 ? "LEBIH" : Math.round(selisih) < 0 ? "KURANG" : "SEIMBANG",
   });
 
+  if (peran === "admin" && !clientDilihat) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-muted/30 p-4">
+        <Alert className="max-w-md">
+          <AlertDescription className="space-y-3">
+            <p>Pilih client terlebih dahulu untuk melihat dashboard keuangannya.</p>
+            <Button asChild size="sm">
+              <Link to="/admin/clients">Buka Manajemen Client</Link>
+            </Button>
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen bg-muted/30">
       <Sidebar onExportExcel={() => exportExcel(laporan())} onExportPDF={() => exportPDF(laporan())} />
       <main className="flex-1 overflow-x-hidden">
+        {hanyaLihat && (
+          <div className="flex items-center gap-2 bg-warning px-4 py-2 text-xs font-semibold text-warning-foreground">
+            <Eye className="h-4 w-4" />
+            Mode Admin — melihat data client (hanya baca).
+            <Link to="/admin/clients" className="ml-auto underline">
+              Kembali ke Manajemen Client
+            </Link>
+          </div>
+        )}
         <header className="border-b bg-card px-4 py-3 pl-16 md:px-5 md:pl-5">
           <h1 className="text-base font-bold text-primary md:text-lg">Dashboard Rekap Keuangan</h1>
+          {clientNama && !hanyaLihat && <p className="text-xs text-muted-foreground">{clientNama}</p>}
         </header>
 
         <div className="space-y-3 p-3 md:p-4">
@@ -117,6 +157,7 @@ const Index = () => {
                 labelKolom="Nama Supplier"
                 warna="biru"
                 totalLabel="TOTAL SALDO SUPPLIER"
+                hanyaLihat={hanyaLihat}
                 data={supplier.map((s) => ({ id: s.id, tanggal: s.tanggal, nama: s.nama, qty: s.qty, jumlah: s.jumlah }))}
                 onSimpan={simpanSupplier}
                 onHapus={(id) => hapus("supplier", id)}
@@ -129,6 +170,7 @@ const Index = () => {
                 labelKolom="Keterangan"
                 warna="hijau"
                 totalLabel="TOTAL HARTA"
+                hanyaLihat={hanyaLihat}
                 data={harta2.map((h) => ({
                   id: h.id,
                   tanggal: h.tanggal,
@@ -146,7 +188,9 @@ const Index = () => {
             <Rekonsiliasi splBankMember={splBankMember} labaRugi={laba} selisih={selisih} />
           </section>
 
-          <FormSaldo saldo={saldo} komisi={komisi} laba={laba} tanggal={rekap?.tanggal} onSimpan={simpanSaldo} />
+          {!hanyaLihat && (
+            <FormSaldo saldo={saldo} komisi={komisi} laba={laba} tanggal={rekap?.tanggal} onSimpan={simpanSaldo} />
+          )}
         </div>
       </main>
     </div>

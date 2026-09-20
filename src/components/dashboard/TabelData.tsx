@@ -30,13 +30,14 @@ interface Props {
   warna: "biru" | "hijau";
   data: ItemBaris[];
   totalLabel: string;
+  hanyaLihat?: boolean;
   onSimpan: (item: { id?: string; tanggal: string; nama: string; qty: number; jumlah: number }) => Promise<void>;
   onHapus: (id: string) => Promise<void>;
 }
 
 const kosong = { nama: "", qty: 1, jumlah: 0, tanggal: toISODate(new Date()) };
 
-const TabelData = ({ judul, labelKolom, warna, data, totalLabel, onSimpan, onHapus }: Props) => {
+const TabelData = ({ judul, labelKolom, warna, data, totalLabel, hanyaLihat, onSimpan, onHapus }: Props) => {
   const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState<string | undefined>();
   const [form, setForm] = useState(kosong);
@@ -67,7 +68,7 @@ const TabelData = ({ judul, labelKolom, warna, data, totalLabel, onSimpan, onHap
         <CardTitle className="text-sm font-semibold">{judul}</CardTitle>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button size="sm" variant="outline" onClick={bukaTambah}>
+            <Button size="sm" variant="outline" onClick={bukaTambah} disabled={hanyaLihat} hidden={hanyaLihat}>
               <Plus className="mr-1 h-4 w-4" /> Tambah
             </Button>
           </DialogTrigger>
@@ -159,14 +160,16 @@ const TabelData = ({ judul, labelKolom, warna, data, totalLabel, onSimpan, onHap
                     {formatRupiah(item.qty * item.jumlah)}
                   </TableCell>
                   <TableCell className="px-1 py-1.5">
-                    <div className="flex items-center justify-end">
-                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => bukaEdit(item)}>
-                        <Pencil className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => onHapus(item.id)}>
-                        <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                      </Button>
-                    </div>
+                    {!hanyaLihat && (
+                      <div className="flex items-center justify-end">
+                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => bukaEdit(item)}>
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => onHapus(item.id)}>
+                          <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                        </Button>
+                      </div>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
