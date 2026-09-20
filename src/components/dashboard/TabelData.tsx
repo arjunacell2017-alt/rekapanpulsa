@@ -30,6 +30,7 @@ interface Props {
   warna: "biru" | "hijau";
   data: ItemBaris[];
   totalLabel: string;
+  hanyaLihat?: boolean;
   onSimpan: (item: { id?: string; tanggal: string; nama: string; qty: number; jumlah: number }) => Promise<void>;
   onHapus: (id: string) => Promise<void>;
 }
