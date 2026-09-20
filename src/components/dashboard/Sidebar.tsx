@@ -48,9 +48,22 @@ const Isi = ({ onExportExcel, onExportPDF, tutup }: Props & { tutup?: () => void
       <Button variant="outline" size="sm" className="w-full justify-start" onClick={onExportPDF}>
         <FileText className="mr-2 h-4 w-4 text-destructive" /> Export PDF
       </Button>
+      <p className="truncate px-3 pt-2 text-xs text-muted-foreground">{user?.email}</p>
+      <Button
+        variant="outline"
+        size="sm"
+        className="w-full justify-start"
+        onClick={async () => {
+          await keluar();
+          navigate("/login", { replace: true });
+        }}
+      >
+        <LogOut className="mr-2 h-4 w-4" /> Logout
+      </Button>
     </div>
   </div>
-);
+  );
+};
 
 const Sidebar = (props: Props) => (
   <>
