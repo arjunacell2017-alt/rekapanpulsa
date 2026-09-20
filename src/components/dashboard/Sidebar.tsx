@@ -1,6 +1,8 @@
-import { LayoutDashboard, Truck, Wallet, Scale, FileSpreadsheet, FileText, Menu } from "lucide-react";
+import { LayoutDashboard, Truck, Wallet, Scale, FileSpreadsheet, FileText, Menu, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
 const menu = [
