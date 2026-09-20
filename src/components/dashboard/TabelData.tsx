@@ -160,14 +160,16 @@ const TabelData = ({ judul, labelKolom, warna, data, totalLabel, hanyaLihat, onS
                     {formatRupiah(item.qty * item.jumlah)}
                   </TableCell>
                   <TableCell className="px-1 py-1.5">
-                    <div className="flex items-center justify-end">
-                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => bukaEdit(item)}>
-                        <Pencil className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => onHapus(item.id)}>
-                        <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                      </Button>
-                    </div>
+                    {!hanyaLihat && (
+                      <div className="flex items-center justify-end">
+                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => bukaEdit(item)}>
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => onHapus(item.id)}>
+                          <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                        </Button>
+                      </div>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
