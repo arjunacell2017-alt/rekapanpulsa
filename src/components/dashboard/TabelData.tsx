@@ -68,7 +68,7 @@ const TabelData = ({ judul, labelKolom, warna, data, totalLabel, hanyaLihat, onS
         <CardTitle className="text-sm font-semibold">{judul}</CardTitle>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button size="sm" variant="outline" onClick={bukaTambah}>
+            <Button size="sm" variant="outline" onClick={bukaTambah} disabled={hanyaLihat} hidden={hanyaLihat}>
               <Plus className="mr-1 h-4 w-4" /> Tambah
             </Button>
           </DialogTrigger>
