@@ -37,7 +37,7 @@ interface Props {
 
 const kosong = { nama: "", qty: 1, jumlah: 0, tanggal: toISODate(new Date()) };
 
-const TabelData = ({ judul, labelKolom, warna, data, totalLabel, onSimpan, onHapus }: Props) => {
+const TabelData = ({ judul, labelKolom, warna, data, totalLabel, hanyaLihat, onSimpan, onHapus }: Props) => {
   const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState<string | undefined>();
   const [form, setForm] = useState(kosong);
