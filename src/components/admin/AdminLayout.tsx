@@ -18,7 +18,7 @@ const Isi = ({ tutup }: { tutup?: () => void }) => {
   return (
     <div className="flex h-full flex-col gap-1 p-4">
       <div className="mb-5 px-2">
-        <p className="text-sm font-bold text-primary">ARJUNA TRONIK</p>
+        <p className="text-sm font-bold text-primary">SERVER PULSA</p>
         <p className="text-xs text-muted-foreground">Area Admin</p>
       </div>
       {menu.map((m) => (
