@@ -69,7 +69,7 @@ const Login = () => {
           <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-info-soft">
             <ShieldCheck className="h-5 w-5 text-electric-blue" />
           </div>
-          <CardTitle className="text-lg font-bold text-primary">ARJUNA TRONIK</CardTitle>
+          <CardTitle className="text-lg font-bold text-primary">SERVER PULSA</CardTitle>
           <p className="text-sm text-muted-foreground">Masuk ke dashboard rekap keuangan</p>
         </CardHeader>
         <CardContent>
