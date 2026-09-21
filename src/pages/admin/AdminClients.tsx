@@ -349,7 +349,10 @@ const AdminClients = () => {
             <p className="text-xs text-muted-foreground">Kode client dibuat otomatis oleh sistem.</p>
           </div>
           <DialogFooter>
-            <Button onClick={simpan} disabled={proses}>
+            <Button
+              onClick={simpan}
+              disabled={proses || !form.nama || !form.email || (!editId && form.password.length < 8)}
+            >
               {proses && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Simpan
             </Button>
           </DialogFooter>
@@ -386,10 +389,13 @@ const AdminClients = () => {
             <div className="space-y-1.5">
               <Label>Password Awal</Label>
               <Input value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
+              <p className="text-xs text-muted-foreground">
+                Minimal 8 karakter, kombinasi huruf dan angka.
+              </p>
             </div>
           </div>
           <DialogFooter>
-            <Button onClick={buatAkun} disabled={proses || form.password.length < 6}>
+            <Button onClick={buatAkun} disabled={proses || !form.email || form.password.length < 8}>
               Buat Akun
             </Button>
           </DialogFooter>
