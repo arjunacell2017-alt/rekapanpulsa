@@ -15,6 +15,15 @@ const json = (body: unknown, status = 200) =>
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 
+// deno-lint-ignore no-explicit-any
+const emailSudahAda = async (admin: any, email: string) => {
+  const target = email.trim().toLowerCase();
+  const { data } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
+  return (data?.users ?? []).some(
+    (u: { email?: string | null }) => (u.email ?? "").toLowerCase() === target,
+  );
+};
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -59,6 +68,17 @@ Deno.serve(async (req) => {
         };
         if (!nama || !email || !password) return json({ error: "Data belum lengkap" }, 400);
 
+        if (await emailSudahAda(admin, email)) return json({ error: "Email sudah terdaftar." }, 409);
+
+        const { data: created, error: uErr } = await admin.auth.admin.createUser({
+          email,
+          password,
+          email_confirm: true,
+          user_metadata: { nama },
+        });
+        if (uErr) return json({ error: uErr.message }, 400);
+        const userId = created.user!.id;
+
         const { data: last } = await admin
           .from("clients")
           .select("kode")
@@ -72,32 +92,37 @@ Deno.serve(async (req) => {
           .insert({ kode, nama, email, status: status ?? "active" })
           .select()
           .single();
-        if (cErr) throw cErr;
-
-        const { data: created, error: uErr } = await admin.auth.admin.createUser({
-          email,
-          password,
-          email_confirm: true,
-          user_metadata: { nama },
-        });
-        if (uErr) {
-          await admin.from("clients").delete().eq("id", client.id);
-          return json({ error: uErr.message }, 400);
+        if (cErr) {
+          await admin.auth.admin.deleteUser(userId);
+          return json({ error: cErr.message }, 400);
         }
 
-        await admin.from("profiles").insert({
-          id: created.user!.id,
+        const { error: pErr } = await admin.from("profiles").insert({
+          id: userId,
           nama,
           email,
           client_id: client.id,
         });
-        await admin.from("user_roles").insert({ user_id: created.user!.id, role: "client" });
+        const { error: rErr } = pErr
+          ? { error: null }
+          : await admin.from("user_roles").insert({ user_id: userId, role: "client" });
+        if (pErr || rErr) {
+          await admin.from("user_roles").delete().eq("user_id", userId);
+          await admin.from("profiles").delete().eq("id", userId);
+          await admin.from("clients").delete().eq("id", client.id);
+          await admin.auth.admin.deleteUser(userId);
+          return json({ error: (pErr ?? rErr)!.message }, 400);
+        }
 
         return json({ client });
       }
 
       case "create_user": {
         const { client_id, nama, email, password } = payload as Record<string, string>;
+        if (!client_id || !nama || !email || !password) return json({ error: "Data belum lengkap" }, 400);
+
+        if (await emailSudahAda(admin, email)) return json({ error: "Email sudah terdaftar." }, 409);
+
         const { data: created, error: uErr } = await admin.auth.admin.createUser({
           email,
           password,
@@ -105,8 +130,20 @@ Deno.serve(async (req) => {
           user_metadata: { nama },
         });
         if (uErr) return json({ error: uErr.message }, 400);
-        await admin.from("profiles").insert({ id: created.user!.id, nama, email, client_id });
-        await admin.from("user_roles").insert({ user_id: created.user!.id, role: "client" });
+        const userId = created.user!.id;
+
+        const { error: pErr } = await admin
+          .from("profiles")
+          .insert({ id: userId, nama, email, client_id });
+        const { error: rErr } = pErr
+          ? { error: null }
+          : await admin.from("user_roles").insert({ user_id: userId, role: "client" });
+        if (pErr || rErr) {
+          await admin.from("user_roles").delete().eq("user_id", userId);
+          await admin.from("profiles").delete().eq("id", userId);
+          await admin.auth.admin.deleteUser(userId);
+          return json({ error: (pErr ?? rErr)!.message }, 400);
+        }
         return json({ ok: true });
       }
 

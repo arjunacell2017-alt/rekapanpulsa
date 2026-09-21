@@ -47,10 +47,33 @@ const AdminClients = () => {
   const [form, setForm] = useState({ nama: "", email: "", password: "", status: "active" });
   const [sandiBaru, setSandiBaru] = useState("");
 
+  const terjemahkanError = (pesan: string) => {
+    const p = pesan.toLowerCase();
+    if (p.includes("weak") || p.includes("easy to guess"))
+      return "Kata sandi terlalu lemah / mudah ditebak. Gunakan minimal 8 karakter dengan kombinasi huruf dan angka.";
+    if (p.includes("should be at least") || p.includes("password should"))
+      return "Kata sandi terlalu pendek. Gunakan minimal 8 karakter.";
+    if (p.includes("already been registered") || p.includes("already registered") || p.includes("sudah terdaftar"))
+      return "Email sudah terdaftar. Gunakan email lain.";
+    if (p.includes("invalid email") || p.includes("is invalid"))
+      return "Format email tidak valid.";
+    return pesan;
+  };
+
   const panggil = async (action: string, payload?: unknown) => {
     const { data: res, error } = await supabase.functions.invoke("admin-api", { body: { action, payload } });
-    if (error) throw new Error(error.message);
-    if ((res as { error?: string })?.error) throw new Error((res as { error: string }).error);
+    if (error) {
+      let pesan = error.message;
+      const ctx = (error as { context?: Response }).context;
+      try {
+        const body = await ctx?.clone().json();
+        if (body?.error) pesan = body.error as string;
+      } catch {
+        /* biarkan pesan bawaan */
+      }
+      throw new Error(terjemahkanError(pesan));
+    }
+    if ((res as { error?: string })?.error) throw new Error(terjemahkanError((res as { error: string }).error));
     return res;
   };
 
@@ -307,6 +330,9 @@ const AdminClients = () => {
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
                 />
+                <p className="text-xs text-muted-foreground">
+                  Minimal 8 karakter, kombinasi huruf dan angka. Kata sandi umum (mis. 123456) ditolak sistem.
+                </p>
               </div>
             )}
             <div className="space-y-1.5">
@@ -323,7 +349,10 @@ const AdminClients = () => {
             <p className="text-xs text-muted-foreground">Kode client dibuat otomatis oleh sistem.</p>
           </div>
           <DialogFooter>
-            <Button onClick={simpan} disabled={proses}>
+            <Button
+              onClick={simpan}
+              disabled={proses || !form.nama || !form.email || (!editId && form.password.length < 8)}
+            >
               {proses && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Simpan
             </Button>
           </DialogFooter>
@@ -360,10 +389,13 @@ const AdminClients = () => {
             <div className="space-y-1.5">
               <Label>Password Awal</Label>
               <Input value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
+              <p className="text-xs text-muted-foreground">
+                Minimal 8 karakter, kombinasi huruf dan angka.
+              </p>
             </div>
           </div>
           <DialogFooter>
-            <Button onClick={buatAkun} disabled={proses || form.password.length < 6}>
+            <Button onClick={buatAkun} disabled={proses || !form.email || form.password.length < 8}>
               Buat Akun
             </Button>
           </DialogFooter>
