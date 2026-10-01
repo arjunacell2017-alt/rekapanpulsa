@@ -1,4 +1,4 @@
-import { LayoutDashboard, Truck, Wallet, Scale, FileSpreadsheet, FileText, Menu, LogOut } from "lucide-react";
+import { LayoutDashboard, Truck, Wallet, Scale, FileSpreadsheet, FileText, Menu, LogOut, ClipboardCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -41,6 +41,18 @@ const Isi = ({ onExportExcel, onExportPDF, tutup }: Props & { tutup?: () => void
         {m.label}
       </a>
     ))}
+    <a
+      href="/rekonsiliasi-saldo"
+      onClick={(e) => {
+        e.preventDefault();
+        tutup?.();
+        navigate("/rekonsiliasi-saldo");
+      }}
+      className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-info-soft hover:text-primary"
+    >
+      <ClipboardCheck className="h-4 w-4" />
+      Rekonsiliasi Saldo
+    </a>
     <div className="mt-auto space-y-2 pt-6">
       <Button variant="outline" size="sm" className="w-full justify-start" onClick={onExportExcel}>
         <FileSpreadsheet className="mr-2 h-4 w-4 text-success" /> Export Excel

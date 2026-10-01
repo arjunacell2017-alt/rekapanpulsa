@@ -7,6 +7,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import RuteTerlindungi from "@/components/RuteTerlindungi";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
+import RekonsiliasiSaldo from "./pages/RekonsiliasiSaldo";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminClients from "./pages/admin/AdminClients";
 import AdminSettings from "./pages/admin/AdminSettings";
@@ -29,6 +30,14 @@ const App = () => (
               element={
                 <RuteTerlindungi peranDiizinkan="client">
                   <Index />
+                </RuteTerlindungi>
+              }
+            />
+            <Route
+              path="/rekonsiliasi-saldo"
+              element={
+                <RuteTerlindungi peranDiizinkan="client">
+                  <RekonsiliasiSaldo />
                 </RuteTerlindungi>
               }
             />
