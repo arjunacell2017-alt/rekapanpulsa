@@ -155,6 +155,53 @@ export type Database = {
           },
         ]
       }
+      rekonsiliasi_saldo: {
+        Row: {
+          client_id: string
+          created_at: string
+          id: string
+          jenis: string
+          pemakaian: number
+          penambahan: number
+          saldo_aktual: number
+          saldo_kemarin: number
+          tanggal: string
+          updated_at: string
+        }
+        Insert: {
+          client_id?: string
+          created_at?: string
+          id?: string
+          jenis: string
+          pemakaian?: number
+          penambahan?: number
+          saldo_aktual?: number
+          saldo_kemarin?: number
+          tanggal?: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          id?: string
+          jenis?: string
+          pemakaian?: number
+          penambahan?: number
+          saldo_aktual?: number
+          saldo_kemarin?: number
+          tanggal?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rekonsiliasi_saldo_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       supplier: {
         Row: {
           client_id: string
