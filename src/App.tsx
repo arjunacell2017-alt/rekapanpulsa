@@ -7,6 +7,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import RuteTerlindungi from "@/components/RuteTerlindungi";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
+import LandingPage from "./pages/LandingPage";
 import RekonsiliasiSaldo from "./pages/RekonsiliasiSaldo";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminClients from "./pages/admin/AdminClients";
@@ -23,7 +24,7 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <Routes>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
             <Route
               path="/dashboard"
