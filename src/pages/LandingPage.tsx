@@ -48,7 +48,7 @@ function Mockup() {
       <div className="flex">
         <div className="hidden sm:block w-24 bg-primary p-2 space-y-2">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className={`h-2 rounded bg-primary-foreground/${i === 0 ? "80" : "30"}`} />
+            <div key={i} className={`h-2 rounded ${i === 0 ? "bg-primary-foreground/80" : "bg-primary-foreground/30"}`} />
           ))}
         </div>
         <div className="flex-1 p-3 space-y-3">
