@@ -24,7 +24,7 @@ const Isi = ({ onExportExcel, onExportPDF, tutup }: Props & { tutup?: () => void
   return (
   <div className="flex h-full flex-col gap-1 p-4">
     <div className="mb-5 px-2">
-      <p className="text-sm font-bold text-primary">ARJUNA TRONIK</p>
+      <p className="text-sm font-bold text-primary">DASHBOARD</p>
       <p className="text-xs text-muted-foreground">{clientNama ?? "Rekap Keuangan"}</p>
     </div>
     {menu.map((m) => (
