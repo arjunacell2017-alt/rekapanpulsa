@@ -41,8 +41,8 @@ export function useRekap(clientId: string | null) {
     }
     setLoading(true);
     const [s, h, r] = await Promise.all([
-      supabase.from("supplier").select("*").eq("client_id", clientId).order("created_at"),
-      supabase.from("harta2").select("*").eq("client_id", clientId).order("created_at"),
+      supabase.from("supplier").select("*").eq("client_id", clientId).order("sort_order", { ascending: true, nullsFirst: false }).order("created_at"),
+      supabase.from("harta2").select("*").eq("client_id", clientId).order("sort_order", { ascending: true, nullsFirst: false }).order("created_at"),
       supabase
         .from("rekap_harian")
         .select("*")
@@ -60,5 +60,24 @@ export function useRekap(clientId: string | null) {
     muat();
   }, [muat]);
 
-  return { supplier, harta2, rekap, loading, muat };
+  const urutkan = useCallback(
+    async (tabel: "supplier" | "harta2", ids: string[]) => {
+      if (tabel === "supplier") {
+        setSupplier((prev) => ids.map((id) => prev.find((p) => p.id === id)!).filter(Boolean));
+      } else {
+        setHarta2((prev) => ids.map((id) => prev.find((p) => p.id === id)!).filter(Boolean));
+      }
+      const hasil = await Promise.all(
+        ids.map((id, i) => supabase.from(tabel).update({ sort_order: i + 1 }).eq("id", id))
+      );
+      const err = hasil.find((r) => r.error)?.error;
+      if (err) {
+        await muat();
+        throw err;
+      }
+    },
+    [muat]
+  );
+
+  return { supplier, harta2, rekap, loading, muat, urutkan };
 }
