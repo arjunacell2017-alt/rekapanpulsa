@@ -21,7 +21,15 @@ const Index = () => {
   const clientId = peran === "admin" ? clientDilihat : clientSaya;
   const hanyaLihat = peran === "admin";
 
-  const { supplier, harta2, rekap, muat } = useRekap(clientId);
+  const { supplier, harta2, rekap, muat, urutkan } = useRekap(clientId);
+
+  const ubahUrutan = async (tabel: "supplier" | "harta2", ids: string[]) => {
+    try {
+      await urutkan(tabel, ids);
+    } catch (e) {
+      toast({ title: "Gagal menyimpan urutan", description: (e as Error).message, variant: "destructive" });
+    }
+  };
 
   const totalSaldoSupplier = supplier.reduce((a, b) => a + b.qty * b.jumlah, 0);
   const totalHarta = harta2.reduce((a, b) => a + b.qty * b.jumlah, 0);
@@ -161,6 +169,7 @@ const Index = () => {
                 data={supplier.map((s) => ({ id: s.id, tanggal: s.tanggal, nama: s.nama, qty: s.qty, jumlah: s.jumlah }))}
                 onSimpan={simpanSupplier}
                 onHapus={(id) => hapus("supplier", id)}
+                onUrutkan={(ids) => ubahUrutan("supplier", ids)}
               />
             </section>
 
@@ -180,6 +189,7 @@ const Index = () => {
                 }))}
                 onSimpan={simpanHarta2}
                 onHapus={(id) => hapus("harta2", id)}
+                onUrutkan={(ids) => ubahUrutan("harta2", ids)}
               />
             </section>
           </div>
