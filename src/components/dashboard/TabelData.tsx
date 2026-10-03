@@ -12,7 +12,26 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { GripVertical, Pencil, Plus, Trash2 } from "lucide-react";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  type Modifier,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { formatRupiah, toISODate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -33,14 +52,104 @@ interface Props {
   hanyaLihat?: boolean;
   onSimpan: (item: { id?: string; tanggal: string; nama: string; qty: number; jumlah: number }) => Promise<void>;
   onHapus: (id: string) => Promise<void>;
+  onUrutkan?: (ids: string[]) => void;
 }
 
 const kosong = { nama: "", qty: 1, jumlah: 0, tanggal: toISODate(new Date()) };
 
-const TabelData = ({ judul, labelKolom, warna, data, totalLabel, hanyaLihat, onSimpan, onHapus }: Props) => {
+const restrictToVerticalAxis: Modifier = ({ transform }) => ({ ...transform, x: 0 });
+
+interface BarisProps {
+  item: ItemBaris;
+  no: number;
+  hanyaLihat?: boolean;
+  dapatDigeser: boolean;
+  onEdit: () => void;
+  onHapus: () => void;
+}
+
+const BarisSortable = ({ item, no, hanyaLihat, dapatDigeser, onEdit, onHapus }: BarisProps) => {
+  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
+    id: item.id,
+    disabled: !dapatDigeser,
+  });
+  return (
+    <TableRow
+      ref={setNodeRef}
+      style={{ transform: CSS.Translate.toString(transform), transition }}
+      className={cn(isDragging && "relative z-10 bg-accent shadow-md ring-1 ring-primary/40")}
+    >
+      <TableCell className="px-2 py-1.5 text-sm">
+        <div className="flex items-center gap-1">
+          {dapatDigeser && (
+            <button
+              type="button"
+              ref={setActivatorNodeRef}
+              {...attributes}
+              {...listeners}
+              aria-label="Geser baris"
+              className={cn(
+                "touch-none text-muted-foreground hover:text-foreground",
+                isDragging ? "cursor-grabbing" : "cursor-grab"
+              )}
+            >
+              <GripVertical className="h-3.5 w-3.5" />
+            </button>
+          )}
+          {no}
+        </div>
+      </TableCell>
+      <TableCell className="whitespace-nowrap px-2 py-1.5 text-sm font-medium">{item.nama}</TableCell>
+      <TableCell className="px-2 py-1.5 text-right text-sm tabular-nums">{item.qty}</TableCell>
+      <TableCell
+        className={cn("whitespace-nowrap px-2 py-1.5 text-right text-sm tabular-nums", item.jumlah < 0 && "text-destructive")}
+      >
+        {formatRupiah(item.jumlah)}
+      </TableCell>
+      <TableCell
+        className={cn(
+          "whitespace-nowrap px-2 py-1.5 text-right text-sm font-medium tabular-nums",
+          item.qty * item.jumlah < 0 && "text-destructive"
+        )}
+      >
+        {formatRupiah(item.qty * item.jumlah)}
+      </TableCell>
+      <TableCell className="px-1 py-1.5">
+        {!hanyaLihat && (
+          <div className="flex items-center justify-end">
+            <Button size="icon" variant="ghost" className="h-7 w-7" onClick={onEdit}>
+              <Pencil className="h-3.5 w-3.5" />
+            </Button>
+            <Button size="icon" variant="ghost" className="h-7 w-7" onClick={onHapus}>
+              <Trash2 className="h-3.5 w-3.5 text-destructive" />
+            </Button>
+          </div>
+        )}
+      </TableCell>
+    </TableRow>
+  );
+};
+
+const TabelData = ({ judul, labelKolom, warna, data, totalLabel, hanyaLihat, onSimpan, onHapus, onUrutkan }: Props) => {
   const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState<string | undefined>();
   const [form, setForm] = useState(kosong);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const selesaiDrag = (e: DragEndEvent) => {
+    const { active, over } = e;
+    if (!over || active.id === over.id || !onUrutkan) return;
+    const ids = data.map((d) => d.id);
+    const dari = ids.indexOf(String(active.id));
+    const ke = ids.indexOf(String(over.id));
+    if (dari < 0 || ke < 0) return;
+    onUrutkan(arrayMove(ids, dari, ke));
+  };
 
   const total = data.reduce((a, b) => a + b.qty * b.jumlah, 0);
 
@@ -138,41 +247,21 @@ const TabelData = ({ judul, labelKolom, warna, data, totalLabel, hanyaLihat, onS
                   </TableCell>
                 </TableRow>
               )}
-              {data.map((item, i) => (
-                <TableRow key={item.id}>
-                  <TableCell className="px-2 py-1.5 text-sm">{i + 1}</TableCell>
-                  <TableCell className="whitespace-nowrap px-2 py-1.5 text-sm font-medium">{item.nama}</TableCell>
-                  <TableCell className="px-2 py-1.5 text-right text-sm tabular-nums">{item.qty}</TableCell>
-                  <TableCell
-                    className={cn(
-                      "whitespace-nowrap px-2 py-1.5 text-right text-sm tabular-nums",
-                      item.jumlah < 0 && "text-destructive"
-                    )}
-                  >
-                    {formatRupiah(item.jumlah)}
-                  </TableCell>
-                  <TableCell
-                    className={cn(
-                      "whitespace-nowrap px-2 py-1.5 text-right text-sm font-medium tabular-nums",
-                      item.qty * item.jumlah < 0 && "text-destructive"
-                    )}
-                  >
-                    {formatRupiah(item.qty * item.jumlah)}
-                  </TableCell>
-                  <TableCell className="px-1 py-1.5">
-                    {!hanyaLihat && (
-                      <div className="flex items-center justify-end">
-                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => bukaEdit(item)}>
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => onHapus(item.id)}>
-                          <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                        </Button>
-                      </div>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
+              <DndContext sensors={sensors} collisionDetection={closestCenter} modifiers={[restrictToVerticalAxis]} onDragEnd={selesaiDrag}>
+                <SortableContext items={data.map((d) => d.id)} strategy={verticalListSortingStrategy}>
+                  {data.map((item, i) => (
+                    <BarisSortable
+                      key={item.id}
+                      item={item}
+                      no={i + 1}
+                      hanyaLihat={hanyaLihat}
+                      dapatDigeser={!hanyaLihat && !!onUrutkan}
+                      onEdit={() => bukaEdit(item)}
+                      onHapus={() => onHapus(item.id)}
+                    />
+                  ))}
+                </SortableContext>
+              </DndContext>
               <TableRow className="bg-muted/60 hover:bg-muted/60">
                 <TableCell colSpan={4} className="px-2 py-2 text-xs font-semibold">
                   {totalLabel}
