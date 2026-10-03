@@ -52,6 +52,7 @@ export type Database = {
           jumlah: number
           keterangan: string
           qty: number
+          sort_order: number | null
           tanggal: string
         }
         Insert: {
@@ -61,6 +62,7 @@ export type Database = {
           jumlah?: number
           keterangan: string
           qty?: number
+          sort_order?: number | null
           tanggal?: string
         }
         Update: {
@@ -70,6 +72,7 @@ export type Database = {
           jumlah?: number
           keterangan?: string
           qty?: number
+          sort_order?: number | null
           tanggal?: string
         }
         Relationships: [
@@ -210,6 +213,7 @@ export type Database = {
           jumlah: number
           nama: string
           qty: number
+          sort_order: number | null
           tanggal: string
         }
         Insert: {
@@ -219,6 +223,7 @@ export type Database = {
           jumlah?: number
           nama: string
           qty?: number
+          sort_order?: number | null
           tanggal?: string
         }
         Update: {
@@ -228,6 +233,7 @@ export type Database = {
           jumlah?: number
           nama?: string
           qty?: number
+          sort_order?: number | null
           tanggal?: string
         }
         Relationships: [
