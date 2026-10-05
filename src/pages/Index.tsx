@@ -8,6 +8,7 @@ import TabelData from "@/components/dashboard/TabelData";
 import FormSaldo from "@/components/dashboard/FormSaldo";
 import Rekonsiliasi from "@/components/dashboard/Rekonsiliasi";
 import { useRekap } from "@/hooks/useRekap";
+import InputSaldoMassal from "@/components/dashboard/InputSaldoMassal";
 import { useAuth } from "@/hooks/useAuth";
 import { exportExcel, exportPDF, LaporanData } from "@/lib/exportUtils";
 import { Button } from "@/components/ui/button";
@@ -75,6 +76,31 @@ const Index = () => {
     }
     toast({ title: "Data harta tersimpan" });
     muat();
+  };
+
+  const simpanMassal = async (
+    update: { id: string; jumlah: number }[],
+    baru: { nama: string; jumlah: number }[]
+  ): Promise<boolean> => {
+    if (!clientId) return false;
+    const hasil = await Promise.all(
+      update.map((u) => supabase.from("supplier").update({ jumlah: u.jumlah }).eq("id", u.id).eq("client_id", clientId))
+    );
+    let err = hasil.find((r) => r.error)?.error;
+    if (!err && baru.length) {
+      const maxUrut = supplier.length;
+      const { error } = await supabase.from("supplier").insert(
+        baru.map((b, i) => ({ nama: b.nama, jumlah: b.jumlah, qty: 1, client_id: clientId, sort_order: maxUrut + i + 1 }))
+      );
+      err = error ?? undefined;
+    }
+    await muat();
+    if (err) {
+      toast({ title: "Gagal menyimpan", description: err.message, variant: "destructive" });
+      return false;
+    }
+    toast({ title: "Saldo supplier berhasil diperbarui." });
+    return true;
   };
 
   const hapus = async (tabel: "supplier" | "harta2", id: string) => {
@@ -170,6 +196,12 @@ const Index = () => {
                 onSimpan={simpanSupplier}
                 onHapus={(id) => hapus("supplier", id)}
                 onUrutkan={(ids) => ubahUrutan("supplier", ids)}
+                aksiTambahan={
+                  <InputSaldoMassal
+                    supplier={supplier.map((s) => ({ id: s.id, nama: s.nama, jumlah: s.jumlah }))}
+                    onSimpan={simpanMassal}
+                  />
+                }
               />
             </section>
 

@@ -53,6 +53,7 @@ interface Props {
   onSimpan: (item: { id?: string; tanggal: string; nama: string; qty: number; jumlah: number }) => Promise<void>;
   onHapus: (id: string) => Promise<void>;
   onUrutkan?: (ids: string[]) => void;
+  aksiTambahan?: React.ReactNode;
 }
 
 const kosong = { nama: "", qty: 1, jumlah: 0, tanggal: toISODate(new Date()) };
@@ -130,7 +131,7 @@ const BarisSortable = ({ item, no, hanyaLihat, dapatDigeser, onEdit, onHapus }: 
   );
 };
 
-const TabelData = ({ judul, labelKolom, warna, data, totalLabel, hanyaLihat, onSimpan, onHapus, onUrutkan }: Props) => {
+const TabelData = ({ judul, labelKolom, warna, data, totalLabel, hanyaLihat, onSimpan, onHapus, onUrutkan, aksiTambahan }: Props) => {
   const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState<string | undefined>();
   const [form, setForm] = useState(kosong);
@@ -175,6 +176,8 @@ const TabelData = ({ judul, labelKolom, warna, data, totalLabel, hanyaLihat, onS
     <Card className="shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 px-4 py-3">
         <CardTitle className="text-sm font-semibold">{judul}</CardTitle>
+        <div className="flex flex-wrap items-center justify-end gap-2">
+        {!hanyaLihat && aksiTambahan}
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button size="sm" variant="outline" onClick={bukaTambah} disabled={hanyaLihat} hidden={hanyaLihat}>
@@ -225,6 +228,7 @@ const TabelData = ({ judul, labelKolom, warna, data, totalLabel, hanyaLihat, onS
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        </div>
       </CardHeader>
       <CardContent className="p-0">
         <div className="overflow-x-auto">
