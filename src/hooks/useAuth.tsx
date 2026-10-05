@@ -59,6 +59,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Login pertama kali atau benar-benar ganti akun.
       uidTermuat.current = uid;
       setUser(s!.user);
+      setPeran(null);
+      setClientId(null);
+      setClientNama(null);
+      setClientAktif(false);
       setLoading(true);
       setTimeout(() => muatProfil(uid), 0);
       return;
