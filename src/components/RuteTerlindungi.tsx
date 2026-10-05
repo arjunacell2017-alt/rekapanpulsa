@@ -11,7 +11,9 @@ const RuteTerlindungi = ({ children, peranDiizinkan }: Props) => {
   const { user, peran, loading } = useAuth();
   const lokasi = useLocation();
 
-  if (loading) {
+  // Loading penuh hanya saat status login/peran belum diketahui.
+  // Jika user & peran sudah ada (refresh sesi di latar belakang), halaman tetap tampil.
+  if (loading && !(user && peran)) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
