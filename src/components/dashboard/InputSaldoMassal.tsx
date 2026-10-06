@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ClipboardList } from "lucide-react";
-import { formatRupiah } from "@/lib/format";
+import { formatRupiah, parseRupiah } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 export interface SupplierRingkas {
@@ -24,18 +24,7 @@ const tanpaPrefix = (s: string) => {
   return i >= 0 ? normal(s.slice(i + 1)) : normal(s);
 };
 
-// Format Indonesia: titik = ribuan, koma = desimal (diabaikan)
-const parseSaldo = (raw: string): number | null => {
-  let s = raw.replace(/rp/gi, "").replace(/\s/g, "");
-  if (!s) return null;
-  const neg = /^-|^\(.*\)$/.test(s);
-  s = s.replace(/[()\-]/g, "");
-  if (!/^[\d.,]+$/.test(s)) return null;
-  s = s.split(",")[0].replace(/\./g, "");
-  if (!s) return null;
-  const n = Number(s);
-  return isNaN(n) ? null : neg ? -n : n;
-};
+const parseSaldo = parseRupiah;
 
 interface BarisParse {
   nama: string;
@@ -52,7 +41,7 @@ const parseTeks = (teks: string): BarisParse[] =>
       let sel = l.includes("\t") ? l.split("\t") : l.includes("|") ? l.split("|") : l.split(/\s{2,}/);
       sel = sel.map((c) => c.trim());
       if (sel.length === 1) {
-        const m = l.trim().match(/^(.*?)\s+(-?[\d.,]+)$/);
+        const m = l.trim().match(/^(.*?)\s+((?:Rp\s?)?-?[\d.,]+)$/i);
         sel = m ? [m[1], m[2]] : sel;
       }
       const nama = sel.find((c) => c && parseSaldo(c) === null) ?? "";
