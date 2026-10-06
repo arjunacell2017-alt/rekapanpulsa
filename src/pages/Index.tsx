@@ -184,6 +184,10 @@ const Index = () => {
             <KartuRingkasan items={ringkasan} />
           </section>
 
+          <section id="rekonsiliasi" className="scroll-mt-4">
+            <Rekonsiliasi splBankMember={splBankMember} labaRugi={laba} selisih={selisih} />
+          </section>
+
           <div className="grid grid-cols-1 items-start gap-3 lg:grid-cols-2">
             <section id="supplier" className="scroll-mt-4">
               <TabelData
@@ -225,10 +229,6 @@ const Index = () => {
               />
             </section>
           </div>
-
-          <section id="rekonsiliasi" className="scroll-mt-4">
-            <Rekonsiliasi splBankMember={splBankMember} labaRugi={laba} selisih={selisih} />
-          </section>
 
           {!hanyaLihat && (
             <FormSaldo saldo={saldo} komisi={komisi} laba={laba} tanggal={rekap?.tanggal} onSimpan={simpanSaldo} />
