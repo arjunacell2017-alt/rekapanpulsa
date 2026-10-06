@@ -143,6 +143,7 @@ const InputSaldoMassal = ({ supplier, onSimpan }: Props) => {
                         <TableHead className="h-8 px-2 text-xs">Supplier</TableHead>
                         <TableHead className="h-8 px-2 text-right text-xs">Saldo Lama</TableHead>
                         <TableHead className="h-8 px-2 text-right text-xs">Saldo Baru</TableHead>
+                        <TableHead className="h-8 px-2 text-right text-xs">Nilai Disimpan</TableHead>
                         <TableHead className="h-8 px-2 text-xs">Status</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -153,6 +154,7 @@ const InputSaldoMassal = ({ supplier, onSimpan }: Props) => {
                           <TableCell className="px-2 py-1 text-xs font-medium">{c.s.nama}</TableCell>
                           <TableCell className="px-2 py-1 text-right text-xs tabular-nums">{formatRupiah(c.s.jumlah)}</TableCell>
                           <TableCell className="px-2 py-1 text-right text-xs font-semibold tabular-nums">{formatRupiah(c.saldo)}</TableCell>
+                          <TableCell className="px-2 py-1 text-right font-mono text-xs tabular-nums text-muted-foreground">{c.saldo}</TableCell>
                           <TableCell className="px-2 py-1 text-xs">
                             <span className="rounded bg-success-soft px-1.5 py-0.5 font-semibold text-success">Cocok</span>
                           </TableCell>
