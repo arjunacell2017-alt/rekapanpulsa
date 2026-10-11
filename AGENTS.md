@@ -1,0 +1,2 @@
+## Monetary input
+- The home reseller form retains editable text and uses the shared Rupiah parser before sending numeric whole-rupiah values to its save callback, so pasted locale separators cannot corrupt stored balances.
