@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import {
   LayoutDashboard, Truck, CalendarDays, ClipboardCheck, TrendingUp, Users,
-  ShieldCheck, Menu, X, CheckCircle2, ArrowRight,
+  LineChart, Menu, X, CheckCircle2, ArrowRight,
 } from "lucide-react";
 
 const fitur = [
@@ -16,12 +16,12 @@ const fitur = [
   { icon: Users, judul: "Multi Client", desc: "Setiap client memiliki akun dan data masing-masing yang terisolasi." },
 ];
 
-const keamanan = [
-  "Setiap client memiliki akun sendiri.",
-  "Data antar client dipisahkan.",
-  "Client hanya dapat mengakses data miliknya.",
-  "Admin memiliki akses untuk mengelola akun client.",
-  "Authentication menggunakan sistem login yang aman.",
+const keunggulan = [
+  "Pantau total saldo reseller dan komisi dalam satu dashboard.",
+  "Catat dan pantau saldo supplier dengan praktis.",
+  "Kelola data harta dan aset dalam satu tempat.",
+  "Periksa selisih saldo melalui fitur rekonsiliasi.",
+  "Buat rekap keuangan harian dengan lebih rapi dan terstruktur.",
 ];
 
 const langkah = [
@@ -166,11 +166,11 @@ export default function LandingPage() {
         <div className="mx-auto grid max-w-6xl gap-10 px-4 lg:grid-cols-2">
           <div>
             <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <ShieldCheck className="h-6 w-6" />
+              <LineChart className="h-6 w-6" />
             </div>
-            <h2 className="mt-4 text-2xl font-bold sm:text-3xl">Data Client Terpisah dan Terlindungi</h2>
+            <h2 className="mt-4 text-2xl font-bold sm:text-3xl">Kelola Keuangan Server Pulsa Lebih Mudah</h2>
             <ul className="mt-6 space-y-3">
-              {keamanan.map((k) => (
+              {keunggulan.map((k) => (
                 <li key={k} className="flex gap-2 text-sm sm:text-base">
                   <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-success" /> {k}
                 </li>
