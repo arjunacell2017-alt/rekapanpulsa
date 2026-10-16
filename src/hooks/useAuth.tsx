@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export type Peran = "admin" | "client" | null;
 
@@ -28,43 +29,71 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // ID user yang profilnya sudah (atau sedang) dimuat. Dipakai untuk membedakan
   // "refresh sesi user yang sama" (diam-diam) dari "ganti akun" (loading penuh).
   const uidTermuat = useRef<string | null>(null);
+  const pemeriksaan = useRef(0);
 
-  const muatProfil = async (uid: string) => {
-    const [{ data: roles }, { data: profil }] = await Promise.all([
+  const muatProfil = async (uid: string, versi: number) => {
+    try {
+    // Validasi ke layanan Auth; jangan mempercayai sesi tersimpan saja.
+    const { data: identitas, error: authError } = await supabase.auth.getUser();
+    if (uidTermuat.current !== uid || pemeriksaan.current !== versi) return;
+    if (authError || !identitas.user) {
+      // Gangguan jaringan sementara bukan logout. Sesi invalid ditangani SDK.
+      if (!authError || [401, 403].includes(authError.status ?? 0)) {
+        await supabase.auth.signOut({ scope: "local" });
+        if (pemeriksaan.current === versi) terapkanSesi(null);
+      }
+      return;
+    }
+    if (identitas.user.id !== uid) return;
+    const [{ data: roles, error: roleError }, { data: profil, error: profileError }] = await Promise.all([
       supabase.from("user_roles").select("role").eq("user_id", uid),
       supabase.from("profiles").select("client_id, clients(id, nama, status)").eq("id", uid).maybeSingle(),
     ]);
-    if (uidTermuat.current !== uid) return; // akun sudah berganti selama memuat
-    const r = roles?.[0]?.role as Peran | undefined;
-    setPeran(r ?? null);
+    if (uidTermuat.current !== uid || pemeriksaan.current !== versi) return;
+    if (roleError || profileError) return;
+    const role = roles?.[0]?.role;
+    const r: Peran = role === "admin" || role === "client" ? role : null;
     const c = (profil as { clients?: { id: string; nama: string; status: string } | null } | null)?.clients ?? null;
+    if (!r || (r === "client" && c?.status !== "active")) {
+      await supabase.auth.signOut({ scope: "local" });
+      if (pemeriksaan.current === versi) terapkanSesi(null);
+      return;
+    }
+    setPeran(r ?? null);
     setClientId(c?.id ?? null);
     setClientNama(c?.nama ?? null);
     setClientAktif(c?.status === "active");
-    setLoading(false);
+    } catch {
+      // Jangan membongkar dashboard user yang sama karena koneksi terputus.
+    } finally {
+      if (uidTermuat.current === uid && pemeriksaan.current === versi) setLoading(false);
+    }
   };
 
   const terapkanSesi = (s: Session | null) => {
     setSession(s);
-    const uid = s?.user?.id ?? null;
+    const pengguna = s?.user ?? null;
+    const uid = pengguna?.id ?? null;
+    const versi = ++pemeriksaan.current;
 
-    if (uid && uid === uidTermuat.current) {
+    if (uid && pengguna && uid === uidTermuat.current) {
       // User yang sama (misal token diperbarui saat kembali ke tab):
       // perbarui sesi secara diam-diam, jangan tampilkan loading penuh.
-      setUser((prev) => (prev?.id === uid ? prev : s!.user));
+      setUser((prev) => (prev?.id === uid ? prev : pengguna));
+      setTimeout(() => muatProfil(uid, versi), 0);
       return;
     }
 
-    if (uid) {
+    if (uid && pengguna) {
       // Login pertama kali atau benar-benar ganti akun.
       uidTermuat.current = uid;
-      setUser(s!.user);
+      setUser(pengguna);
       setPeran(null);
       setClientId(null);
       setClientNama(null);
       setClientAktif(false);
       setLoading(true);
-      setTimeout(() => muatProfil(uid), 0);
+      setTimeout(() => muatProfil(uid, versi), 0);
       return;
     }
 
@@ -80,16 +109,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => terapkanSesi(s));
-    supabase.auth.getSession().then(({ data }) => terapkanSesi(data.session));
-    return () => sub.subscription.unsubscribe();
+    // SDK mengirim INITIAL_SESSION setelah memulihkan penyimpanan resminya.
+    return () => {
+      pemeriksaan.current += 1;
+      sub.subscription.unsubscribe();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const keluar = async () => {
-    await supabase.auth.signOut();
-    uidTermuat.current = null;
-    setPeran(null);
-    setClientId(null);
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast.error("Gagal keluar. Periksa koneksi lalu coba lagi.");
+      throw error;
+    }
+    terapkanSesi(null);
   };
 
   return (
