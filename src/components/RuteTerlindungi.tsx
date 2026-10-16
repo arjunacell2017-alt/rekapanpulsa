@@ -8,7 +8,7 @@ interface Props {
 }
 
 const RuteTerlindungi = ({ children, peranDiizinkan }: Props) => {
-  const { user, peran, loading } = useAuth();
+  const { user, peran, clientAktif, loading } = useAuth();
   const lokasi = useLocation();
 
   // Loading penuh hanya saat status login/peran belum diketahui.
@@ -21,7 +21,9 @@ const RuteTerlindungi = ({ children, peranDiizinkan }: Props) => {
     );
   }
 
-  if (!user) return <Navigate to="/login" state={{ from: lokasi.pathname }} replace />;
+  if (!user || !peran || (peran === "client" && !clientAktif)) {
+    return <Navigate to="/login" state={{ from: lokasi.pathname }} replace />;
+  }
   if (peran !== peranDiizinkan) {
     return <Navigate to={peran === "admin" ? "/admin" : "/dashboard"} replace />;
   }
